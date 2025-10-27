@@ -1,54 +1,197 @@
 {% extends "main/layout.html" %}
 {% block content %}
-<div class="cart">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-9 mt-5">
-                <h3 class="text-center">Your Cart</h3>
-                {% if cart_items %}
-                <div class="table-responsive">
-                    <table class="table table-light">
-                        <thead>
-                        <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">Description</th>
-                            <th scope="col">Specification</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">Total Pieces</th>
-                            <th scope="col"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            {% for cart in cart_items %}
-                        <tr>
-                            <td>{{ cart.item.title }} <span class="badge badge-{{ cart.item.label_colour }}">{{ cart.item.labels }}</span></td>
-                            <td>{{ cart.item.description }}</td>
-                            <td>{{ cart.item.instructions }}</td>
-                            <td>{{ cart.item.price }}</td>
-                            <td>{{ cart.item.pieces }} pieces</td>
-                            <td><a class="btn btn-danger" href="{% url 'main:remove-from-cart' cart.id %}">Delete😢</a></td>
-                        </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <h4 class="text-center">Sorry, your cart is empty..Please add items!!!</h4>
+<div class="container my-5">
+  <h1 class="text-center mb-4 text-uppercase" style="color:#357ABD; font-weight:900; letter-spacing:1px; transform: skew(-5deg);">My Cart</h1>
+
+  {% if cart_items %}
+
+  <!-- ======= NUTS-ONLY WARNING ======= -->
+  {% if nuts_only_warning %}
+  <div class="alert alert-warning text-center mb-3" style="font-weight: 700; color: #856404; background-color: #fff3cd; border: 2px solid #ffeeba; border-radius: 12px; padding: 15px; font-family: 'Arial Black', 'Impact', sans-serif;">
+    ⚠️ Your snack cannot be made with only nuts. Please add at least one sweet ingredient like honey, raisins, or dried apricots.
+  </div>
+  {% endif %}
+
+  <div class="card shadow-lg rounded-3">
+    <div class="card-body p-4">
+      <div class="table-responsive">
+        <table class="table cart-table align-middle text-center mb-0">
+          <thead class="cart-thead">
+            <tr>
+              <th>Item</th>
+              <th>Quantity / Grams</th>
+              <th>Price</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in cart_items %}
+            <tr>
+              <td>
+                {% if item.ingredient %}
+                  <strong>{{ item.ingredient.title }}</strong>
+                {% elif item.snack %}
+                  <strong>{{ item.snack.title }}</strong>
                 {% endif %}
-            </div>
-            <div class="col-sm-3 mt-5 mb-3">
-                <div class="content-section">
-                    <h3 class="text-center">Order Summary</h3>
-                      <ul class="list-group">
-                        <li class="list-group-item list-group-item-light text-center text-dark">Total: {{ total }}🤑</li>
-                        <li class="list-group-item list-group-item-light text-center text-dark">Number of Boxes: {{ count }}📦</li>
-                        <li class="list-group-item list-group-item-light text-center text-dark">Total Pieces: {{ total_pieces }}🍣</li>
-                        <li class="list-group-item list-group-item-light text-center text-dark"><a class="btn btn-info text-dark" href="{% url 'main:ordered' %}">Proceed To Checkout🤝</a></li>
-                        <li class="list-group-item list-group-item-light text-center"><a class="btn btn-warning text-dark" href="/">Continue Buying✌️</a></li>
-                      </ul>
-                </div>
-            </div>
-        </div>
+              </td>
+              <td>
+                {% if item.ingredient %}
+                  {{ item.grams }} g
+                {% elif item.snack %}
+                  {{ item.quantity }} pcs
+                {% endif %}
+              </td>
+              <td><span class="fw-bold">SEK {{ item.get_total_price }}</span></td>
+              <td>
+                <a href="{{ item.get_remove_from_cart_url }}" 
+                   class="btn btn-sm btn-outline-danger">
+                  <i class="bi bi-trash"></i> Remove
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-4">
+        <h4 class="mb-0 text-uppercase" style="color:#357ABD; font-weight:700; transform: skew(-5deg);">
+          <span style="opacity:0.7;">Grand Total:</span> <span style="color:#357ABD;">SEK {{ total_cost }}</span>
+        </h4>
+        
+        <a href="{% url 'main:checkout' %}" class="btn-ghost btn-lg">
+          Proceed to Checkout →
+        </a>
+      </div>
+      <div class="mb-2">
+        <a href="{% url 'main:home' %}" class="custom-see-all-btn">Add Ingredients</a>
+        <a href="{% url 'main:snacks-list' %}" class="custom-see-all-btn ms-2">Add Snacks</a>
+      </div>
     </div>
+  </div>
+  {% else %}
+    <div class="text-center"> 
+        <a href="{% url 'main:home' %}" class="custom-see-all-btn">Add Ingredients</a>
+        <a href="{% url 'main:snacks-list' %}" class="custom-see-all-btn ms-2">Add Snacks</a>
+      </div>
+    </div>
+  {% endif %}
 </div>
-{% endblock content %}
+
+<style>
+/* ===== CART TABLE STYLING ===== */
+.cart-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  font-family: 'Arial', sans-serif;
+}
+
+.cart-thead th {
+  background-color: #357ABD;
+  color: white;
+  text-transform: uppercase;
+  font-weight: 900;
+  font-size: 0.95rem;
+  letter-spacing: 1px;
+  padding: 0.75rem;
+  border: none;
+  transform: skew(-5deg);
+}
+
+.cart-table tbody tr {
+  transition: background 0.3s, transform 0.2s;
+}
+
+.cart-table tbody tr:nth-child(even) {
+  background-color: #f9fbff;
+}
+
+.cart-table tbody tr:hover {
+  background-color: #e6f0ff;
+  transform: scale(1.01);
+}
+
+.cart-table td {
+  padding: 0.75rem;
+  vertical-align: middle;
+  border-top: 1px solid #dee2e6;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+/* ===== Ghost Buttons ===== */
+.btn-ghost {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 1.4rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  color: #357ABD;
+  border: 2px solid #357ABD;
+  background: transparent;
+  transition: transform 0.3s, background 0.3s, color 0.3s, box-shadow 0.3s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  cursor: pointer;
+}
+
+.btn-ghost:hover {
+  transform: scale(1.05);
+  background: #357ABD;
+  color: white;
+  box-shadow: 0 8px 20px rgba(53,122,189,0.5);
+}
+
+/* ===== Remove Button ===== */
+.btn-outline-danger {
+  border-radius: 8px;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.btn-outline-danger:hover {
+  background-color: #d9534f;
+  color: white;
+  transform: scale(1.05);
+}
+
+/* add snacks buttons */
+.custom-see-all-btn {
+    display: inline-block;
+    padding: 0.6rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 900;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-decoration: none;
+    color: #357ABD; /* Scandinavian blue */
+    background-color: #FFD500; /* Scandinavian yellow */
+    transform: skew(-10deg);
+    font-family: 'Arial Black', 'Impact', sans-serif;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.custom-see-all-btn:hover {
+    transform: skew(-10deg) scale(1.05);
+    background-color: #357ABD; /* Blue hover */
+    color: #FFD500; /* Yellow text on hover */
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.custom-see-all-btn {
+    padding: 0.5rem 1.2rem;
+    font-size: 1rem;
+}
+
+</style>
+{% endblock %}

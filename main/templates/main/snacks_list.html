@@ -1,0 +1,66 @@
+{% extends "main/layout.html" %}
+{% block content %}
+<div class="container my-4"> 
+  <h1 class="text-center mb-4 text-uppercase" style="color:#357ABD; font-weight:900; letter-spacing:1px; transform: skew(-5deg);">Snacks</h1>
+  <div class="row">
+    {% for snack in snacks %}
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 d-flex flex-column">
+          <div class="card-img-top-wrapper" style="height: 300px; overflow: hidden;">
+            <img src="{{ snack.image.url }}" class="card-img-top" alt="{{ snack.title }}" style="object-fit: cover; width: 100%; height: 100%;">
+          </div>
+          <div class="card-body d-flex flex-column text-center">
+            <h5 class="card-title">{{ snack.title }}</h5>
+            <p class="card-text mb-2">{{ snack.description|truncatewords:15 }}</p>
+            <p class="fw-bold mb-3">SEK {{ snack.price }}</p>
+            <form method="post" action="{% url 'main:add-snack-to-cart' snack.pk %}" class="mt-auto">
+              {% csrf_token %}
+              <div class="d-flex justify-content-center align-items-center mb-2">
+                <input type="number" name="quantity" value="1" min="1" class="form-control w-50 text-center">
+                <span class="ms-2">pcs</span>
+              </div>
+              <!-- Unified Button Style -->
+              <button type="submit" class="btn-ghost w-100">Add to Cart</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+/* ===== UNIFIED BUTTON STYLE (exactly matches Ingredients Page) ===== */
+.btn-ghost,
+.see-all-snacks-btn-ghost {
+  display: inline-block;
+  padding: 0.5rem 1.2rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  color: #357ABD; /* Table blue */
+  border: 2px solid #357ABD; /* Table blue */
+  background: transparent;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.btn-ghost:hover,
+.see-all-snacks-btn-ghost:hover {
+  background: #FFC700; /* Scandinavian yellow */
+  color: #357ABD; /* Table blue text */
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(53, 122, 189, 0.4);
+}
+
+/* Optional: match the same input style as Ingredients */
+input.form-control {
+  border: 2px solid #357ABD;
+  border-radius: 8px;
+  color: #357ABD;
+  font-weight: 600;
+  text-align: center;
+}
+</style>
+{% endblock %}

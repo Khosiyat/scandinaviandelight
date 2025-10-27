@@ -1,53 +1,162 @@
 {% extends "main/layout.html" %}
 {% block content %}
-  <div class="home bg-dark">
-    <div id="carouselExampleCaptions" class="carousel slide mb-5" data-ride="carousel" style="height: 500px;">
-        <ol class="carousel-indicators">
-          <li data-target="#carouselExampleCaptions" data-slide-to="0" class="active"></li>
-          <li data-target="#carouselExampleCaptions" data-slide-to="1"></li>
-          <li data-target="#carouselExampleCaptions" data-slide-to="2"></li>
-        </ol>
-        <div class="carousel-inner">
-          <div class="carousel-item active">
-            <img src="../media/sushi.jpg" class="d-block w-100" alt="sushi1" height="500px">
-            <div class="carousel-caption d-none d-md-block text-dark">
-              <h1>The XYZ</h1>
+<div class="home bg-light" style="min-height: 100vh; overflow: hidden;">
+  <div class="container-fluid h-100">
+    <div class="row h-100 align-items-stretch">
+
+      <!-- ================= LEFT: INGREDIENTS TABLE ================= -->
+      <div class="col-md-9 d-flex flex-column">
+        <div class="text-center my-5">
+
+          <!-- Improved Top Section -->
+          <div class="top-selection d-flex flex-column align-items-center mb-4">
+            <a href="{% url 'main:snacks-list' %}" class="see-all-snacks-btn-ghost custom-see-all-btn mb-2">
+              See All Snacks
+            </a>
+            <div class="or-divider my-2">
+              <span>OR</span>
+            </div>
+            <div class="custom-choose-text">
+              <h2>Choose Your Ingredients</h2>
             </div>
           </div>
-          <div class="carousel-item">
-            <img src="../media/Sushi4.jpg" class="d-block w-100" alt="sushi2" height="500px">
-          </div>
-          <div class="carousel-item">
-            <img src="../media/Sushi6.jpg" class="d-block w-100" alt="sushi3" height="500px">
+
+        </div>
+
+        {% if ingredients %}
+        <div class="flex-grow-1 overflow-auto mb-3">
+          <table class="table ingredient-table text-center align-middle mb-0">
+            <thead class="thead-custom sticky-top">
+              <tr>
+                <th scope="col">Image</th>
+                <th scope="col">Ingredient</th>
+                <th scope="col">Type</th>
+                <th scope="col">Description</th>
+                <th scope="col">Price (per 100 g)</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ingredient in ingredients %}
+              <tr>
+                <td><img src="{{ ingredient.image.url }}" alt="{{ ingredient.title }}" class="ingredient-img"></td>
+                <td><strong>{{ ingredient.title }}</strong></td>
+
+                <!-- ===== Type Detection ===== -->
+                <td>
+                  {% with ingredient.title|lower as title %}
+                    {% if 'nut' in title or 'almond' in title or 'peanut' in title or 'cashew' in title or 'walnut' in title %}
+                      <span class="badge bg-nut">Nut</span>
+                    {% elif 'honey' in title or 'raisin' in title or 'raisons' in title or 'apricot' in title or 'prune' in title %}
+                      <span class="badge bg-sweet">Sweet</span>
+                    {% else %}
+                      <span class="badge bg-secondary">Other</span>
+                    {% endif %}
+                  {% endwith %}
+                </td>
+
+                <td>{{ ingredient.description|truncatewords:15 }}</td>
+                <td>SEK {{ ingredient.price_per_100g }}</td>
+                <td>
+                  <form method="POST" action="{% url 'main:add-to-cart' ingredient.slug %}">
+                    {% csrf_token %}
+                    <input type="number" name="grams" class="form-control grams-input mb-1" value="100" min="1">
+                    <button type="submit" class="btn-ghost">Add to Cart</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+          <h4 class="text-center flex-grow-1 d-flex align-items-center justify-content-center">No ingredients available yet!</h4>
+        {% endif %}
+      </div>
+
+      <!-- ================= RIGHT: VERTICAL SNACK SLIDER ================= -->
+      <div class="col-md-3 d-flex flex-column">
+        {% if snacks %}
+        <div class="scroll-box d-flex flex-column" id="scrollBox">
+          <div class="slider flex-grow-1 d-flex flex-column" id="snackSlider">
+            <div class="slide-track d-flex flex-column align-items-center" id="slideTrack">
+              {% for snack in snacks %}
+              <div class="card mb-3">
+                <img src="{{ snack.image.url }}" alt="{{ snack.title }}">
+                <div class="card-body text-center p-2">
+                  <h6 class="mb-1">{{ snack.title }}</h6>
+                  <p class="small text-muted mb-1">{{ snack.description|truncatewords:12 }}</p>
+                  <p class="fw-bold mb-1">SEK {{ snack.price }}</p>
+                  <form method="post" action="{% url 'main:add-snack-to-cart' snack.pk %}">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-center align-items-center mb-2">
+                      <input type="number" name="quantity" value="1" min="1" class="form-control w-50 text-center">
+                      <span class="ms-2">pcs</span>
+                    </div>
+                    <button type="submit" class="btn-ghost">Add to Cart</button>
+                  </form>
+                </div>
+              </div>
+              {% endfor %}
+
+              <!-- Final card: See All Snacks -->
+              <div class="card see-all">
+                <a href="{% url 'main:snacks-list' %}" class="d-flex flex-column justify-content-center align-items-center h-100 text-decoration-none text-dark">
+                  <h5>See All Snacks</h5>
+                  <p class="small">Click to explore</p>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
-        <a class="carousel-control-prev" href="#carouselExampleCaptions" role="button" data-slide="prev">
-          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span class="sr-only">Previous</span>
-        </a>
-        <a class="carousel-control-next" href="#carouselExampleCaptions" role="button" data-slide="next">
-          <span class="carousel-control-next-icon" aria-hidden="true"></span>
-          <span class="sr-only">Next</span>
-        </a>
-    </div>
-    <div class="container">
-      <h1 class="text-center text-light mb-3">Our Dishes</h1>
-      <div class="row">
-        {% for item in menu_items %}
-            <div class="col-sm-4">
-                <div class="card mb-3" style="height: fit-content; overflow: auto;">
-                  <img src="{{ item.image.url }}" style="height: 250px;">
-                    <div class="card-body text-center">      
-                      <button class="btn btn-warning">By:{{ item.created_by }}</button>         
-                      <h5 class="text-center"><a href="{% url 'main:dishes' item.slug %}">{{ item.title }} </a><span class="badge badge-{{ item.label_colour }}">{{ item.labels }}</span></h5>
-                      <p class="text-center">{{ item.description }}</p>
-                      <h5 class="text-center">₹ {{ item.price }}</h5>    
-                      <a href="{% url 'main:dishes' item.slug %}" class="btn btn-info float-right">View Details</a>           
-                    </div>
-                </div>
-            </div>            
-        {% endfor %}
+        {% endif %}
       </div>
+      <!-- ================= END RIGHT COLUMN ================= -->
+
     </div>
   </div>
+</div>
+
+<style>
+/* ===== TABLE STYLE ===== */
+.ingredient-table { border-collapse: separate; border-spacing: 0; width: 100%; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.08); font-family: 'Arial', sans-serif; }
+.ingredient-table thead th { background-color: #357ABD; color: white; text-transform: uppercase; font-weight: 900; font-size: 0.9rem; letter-spacing: 1px; padding: 0.75rem; border: none; }
+.ingredient-table tbody tr { transition: background 0.3s, transform 0.2s; }
+.ingredient-table tbody tr:nth-child(even) { background-color: #f9fbff; }
+.ingredient-table tbody tr:hover { background-color: #e6f0ff; transform: scale(1.01); }
+.ingredient-table td { padding: 0.8rem; vertical-align: middle; border-top: 1px solid #dee2e6; color: #333; font-size: 0.95rem; }
+.ingredient-img { width: 80px; height: 60px; object-fit: cover; border-radius: 6px; border: 2px solid #357ABD; }
+.grams-input { width: 80px; display: inline-block; text-align: center; border: 2px solid #357ABD; border-radius: 8px; font-weight: 600; color: #357ABD; }
+
+/* ===== BADGE COLORS ===== */
+.badge { padding: 0.3em 0.6em; border-radius: 0.5rem; font-weight: 700; font-size: 0.8rem; }
+.bg-nut { background-color: #005CBF; color: white; }   /* Swedish blue */
+.bg-sweet { background-color: #FFD700; color: #005CBF; } /* Swedish yellow */
+.bg-secondary { background-color: #90A4AE; color: white; }
+
+/* ===== BUTTON STYLE ===== */
+.btn-ghost, .see-all-snacks-btn-ghost { display: inline-block; padding: 0.5rem 1.2rem; border-radius: 10px; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; color: #357ABD; border: 2px solid #357ABD; background: transparent; transition: all 0.25s ease; cursor: pointer; }
+.btn-ghost:hover, .see-all-snacks-btn-ghost:hover { background: #FFC700; color: #357ABD; transform: scale(1.05); box-shadow: 0 5px 15px rgba(53, 122, 189, 0.4); }
+
+/* ===== TOP SELECTION STYLING ===== */
+.top-selection { display: flex; flex-direction: column; align-items: center; }
+.or-divider { position: relative; text-align: center; width: 100%; margin: 0.5rem 0; }
+.or-divider span { background: #f9f9f9; padding: 0 1rem; font-weight: 700; color: #357ABD; }
+.or-divider::before { content: ""; position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: #357ABD; z-index: 0; transform: translateY(-50%); }
+
+/* Section title */
+.custom-choose-text h2 { color: #357ABD; text-transform: uppercase; font-weight: 900; font-size: 2rem; transform: skew(-5deg); margin: 0; font-family: 'Arial Black', 'Impact', sans-serif; }
+
+/* ===== VERTICAL SLIDER ===== */
+.scroll-box { height: calc(100vh - 60px); overflow: hidden; display: flex; flex-direction: column; background: #f9f9f9; }
+.slider { flex-grow: 1; display: flex; flex-direction: column; }
+.slide-track { display: flex; flex-direction: column; align-items: center; animation: scrollUp 360s linear infinite; }
+@keyframes scrollUp { 0% { transform: translateY(5vh); } 100% { transform: translateY(-100%); } }
+.card { width: 90%; margin-bottom: 1rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; background: #fff; transition: transform 0.3s; }
+.card:hover { transform: scale(1.05); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
+.card img { width: 100%; height: 150px; object-fit: cover; border-top-left-radius: 12px; border-top-right-radius: 12px; }
+.card h6 { margin: 6px 0; }
+.see-all { display: flex; justify-content: center; align-items: center; background: #f8f9fa; height: 180px; }
+.scroll-box:hover .slide-track { animation-play-state: paused; }
+</style>
 {% endblock content %}

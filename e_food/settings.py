@@ -28,8 +28,6 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
-# Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -40,6 +38,7 @@ INSTALLED_APPS = [
     'main.apps.MainConfig',
     'accounts.apps.AccountsConfig',
     'crispy_forms',
+    "crispy_bootstrap4",
 ]
 
 MIDDLEWARE = [
@@ -127,3 +126,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
+
+
+# tell crispy which template pack to use
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"  # optional
+CRISPY_TEMPLATE_PACK = "bootstrap4"

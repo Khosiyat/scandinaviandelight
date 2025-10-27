@@ -21,7 +21,10 @@ from .views import (
 app_name = "main"
 
 urlpatterns = [
-    path('', MenuListView.as_view(), name='home'),
+    # path('', MenuListView.as_view(), name='home'),
+    path('', views.home, name='home'),
+    path('ingredient/<slug:slug>/', views.ingredient_detail, name='ingredient-detail'),
+    
     path('dishes/<slug>', views.menuDetail, name='dishes'),
     path('item_list/', views.item_list, name='item_list'),
     path('item/new/', ItemCreateView.as_view(), name='item-create'),
@@ -37,4 +40,35 @@ urlpatterns = [
     path('admin_dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('update_status/<int:pk>', views.update_status, name='update_status'),
     path('postReview', views.add_reviews, name='add_reviews'),
+
+
+    path("checkout/", views.checkout, name="checkout"),
+    path("order-success/", views.order_success, name="order-success"),
+
+
+    # ----------------------------------------------
+
+
+
+    path('', views.home, name='home'),
+    path('ingredient/<slug:slug>/', views.ingredient_detail, name='ingredient-detail'),
+
+    path('add-to-cart/<slug>/', views.add_to_cart, name='add-to-cart'),
+    path('cart/', views.get_cart_items, name='cart'),
+    path('checkout/', views.checkout, name='checkout'),
+    path('order_details/', views.order_details, name='order_details'),
+
+    # Admin views
+    path('pending_orders/', views.pending_orders, name='pending_orders'),
+    path('update_order_status/<int:pk>/', views.update_order_status, name='update_order_status'),
+
+
+    path("snacks/", views.snacks_list, name="snacks-list"),
+    path("snack/add-to-cart/<int:pk>/", views.add_snack_to_cart, name="add-snack-to-cart"),
+
+
+    path("cart/remove/<int:pk>/", views.remove_from_cart, name="remove-from-cart"),
+
+
+
 ]

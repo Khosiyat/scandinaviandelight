@@ -1,86 +1,166 @@
 {% extends "main/layout.html" %}
 {% block content %}
-<div class="cart">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-12 mt-5">
-                <h3 class="text-center">Active Orders</h3>
-                {% if items %}
-                <h4 class="text-center">Total Bill Amount: {{total}} for {{ count }} boxes.</h4>
-                <h6 class="text-center">Please pay either via PayTM or Net Banking or at time of delivery!</h6>
-                <div class="table-responsive">
-                    <table class="table table-light">
-                        <thead>
-                        <tr>
-                            <th scope="col">Ordered</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Description</th>
-                            <th scope="col">Specification</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">Total Pieces</th>
-                            <th scope="col">Order Status</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            {% for item_active in items %}
-                        <tr>
-                            <td>{{ item_active.ordered_date }}</td>
-                            <td>{{ item_active.item.title }} <span class="badge badge-{{ item_active.item.label_colour }}">{{ item_active.item.labels }}</span></td>
-                            <td>{{ item_active.item.description }}</td>
-                            <td>{{ item_active.item.instructions }}</td>
-                            <td>{{ item_active.item.price }}</td>
-                            <td>{{ item_active.item.pieces }} pieces</td>
-                            <td>{{ item_active.status }}</td>
-                        </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <h4 class="text-center">Sorry, you have not ordered any item yet!!!</h4>
-                {% endif %}
-            </div>
-        </div>
+<div class="container my-5"> 
+  <h1 class="text-center mb-4 text-uppercase" style="color:#357ABD; font-weight:900; letter-spacing:1px; transform: skew(-5deg);">My Orders</h1>
+  
 
-        <div class="row">
-            <div class="col-sm-12 mt-5">
-                <h3 class="text-center">Past Orders</h3>
-                {% if cart_items %}
-                <div class="table-responsive">
-                    <table class="table table-light">
-                        <thead>
-                        <tr>
-                            <th scope="col">Ordered</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Description</th>
-                            <th scope="col">Specification</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">Total Pieces</th>
-                            <th scope="col">Order Status</th>
-                            <th scope="col">Delivery Date</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            {% for cart in cart_items %}
-                        <tr>
-                            <td>{{ cart.ordered_date }}</td>
-                            <td>{{ cart.item.title }} <span class="badge badge-{{ cart.item.label_colour }}">{{ cart.item.labels }}</span></td>
-                            <td>{{ cart.item.description }}</td>
-                            <td>{{ cart.item.instructions }}</td>
-                            <td>{{ cart.item.price }}</td>
-                            <td>{{ cart.item.pieces }} pieces</td>
-                            <td>{{ cart.status }}</td>
-                            <td>{{ cart.delivery_date }}</td>
-                        </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <h4 class="text-center">Sorry, you have not ordered any item yet!!!</h4>
-                {% endif %}
-            </div>
+  <!-- Active Orders -->
+  {% for order in active_orders %}
+    <div class="card mb-4 shadow-sm order-card">
+      <div class="card-header d-flex justify-content-between align-items-center header-custom header-active">
+        <div>
+          <strong>{{ order.reference_code }}</strong> 
+          <small class="text-light">({{ order.ordered_date|date:"d M Y H:i" }})</small>
         </div>
+        <span class="badge status_badge-ghost-blue">{{ order.status }}</span>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for item in order.cartitems.all %}
+          <li class="list-group-item d-flex justify-content-between align-items-center list-item-custom">
+            <div>
+              {% if item.ingredient %}
+                {{ item.ingredient.title }} - {{ item.grams }} g
+              {% elif item.snack %}
+                {{ item.snack.title }} - {{ item.quantity }} pcs
+              {% elif item.custom_snack %}
+                {{ item.custom_snack.title }} (Custom Mix)
+              {% endif %}
+            </div>
+            <div class="fw-bold">SEK {{ item.get_total_price }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="card-footer d-flex justify-content-end fw-bold footer-custom">
+        Total: SEK {{ order.get_total_cost }}
+      </div>
     </div>
+  {% empty %}
+    <div class="alert alert-info">No active orders.</div>
+  {% endfor %}
+
+  <!-- Past Orders --> 
+  <h1 class="text-center mb-4 text-uppercase" style="color:#357ABD; font-weight:900; letter-spacing:1px; transform: skew(-5deg);">My Past Orders</h1>
+  {% for order in past_orders %}
+    <div class="card mb-4 shadow-sm order-card">
+      <div class="card-header d-flex justify-content-between align-items-center header-custom header-past">
+        <div>
+          <strong>{{ order.reference_code }}</strong> 
+          <small class="text-light">({{ order.ordered_date|date:"d M Y H:i" }})</small>
+        </div>
+        <span class="badge status_badge-ghost-blue">{{ order.status }}</span>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for item in order.cartitems.all %}
+          <li class="list-group-item d-flex justify-content-between align-items-center list-item-custom">
+            <div>
+              {% if item.ingredient %}
+                {{ item.ingredient.title }} - {{ item.grams }} g
+              {% elif item.snack %}
+                {{ item.snack.title }} - {{ item.quantity }} pcs
+              {% elif item.custom_snack %}
+                {{ item.custom_snack.title }} (Custom Mix)
+              {% endif %}
+            </div>
+            <div class="fw-bold">SEK {{ item.get_total_price }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="card-footer d-flex justify-content-end fw-bold footer-custom">
+        Total: SEK {{ order.get_total_cost }}
+      </div>
+    </div>
+  {% empty %}
+    <div class="alert alert-secondary">No past orders.</div>
+  {% endfor %}
 </div>
-{% endblock content %}
+
+<style>
+/* ===== Card Styling ===== */
+.order-card {
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.order-card:hover {
+  transform: scale(1.01);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+}
+
+/* ===== Header Styling ===== */
+.header-custom {
+  font-family: 'Arial Black', 'Impact', sans-serif;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 0.75rem 1rem;
+}
+
+/* Active Orders Header Color */
+.header-active {
+  background-color: #357ABD;
+  color: white;
+}
+
+/* Past Orders Header Color */
+.header-past {
+  background-color: #6c757d; /* gray for past orders */
+  color: white;
+}
+
+/* ===== Footer Styling ===== */
+.footer-custom {
+  background-color: #f8f9fa !important;
+}
+
+/* ===== List Item Styling ===== */
+.list-item-custom {
+  font-size: 0.95rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid #dee2e6;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.list-item-custom:hover {
+  background-color: #f0f7ff;
+  transform: scale(1.01);
+}
+
+/* ===== Ghost Badges for Status ===== */
+.status_badge-ghost-blue {
+  display: inline-block;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  border-radius: 8px;
+  background: transparent;
+  text-transform: uppercase;
+  transition: 0.3s;
+}
+
+.status_badge-ghost-blue:hover {
+  background: #b6b6b6;
+  color: white;
+}
+
+.badge-ghost-success {
+  display: inline-block;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #28a745;
+  border: 2px solid #28a745;
+  border-radius: 8px;
+  background: transparent;
+  text-transform: uppercase;
+  transition: 0.3s;
+}
+
+.badge-ghost-success:hover {
+  background: #28a745;
+  color: white;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,203 @@
+{% extends "main/layout.html" %}
+{% block content %}
+<div class="container my-5">
+  <h1 class="text-center mb-4" style="text-transform: uppercase; font-weight: 900; color: #357ABD; letter-spacing: 1px;">Checkout</h1>
+
+  {% if ingredients_grouped or snacks %}
+  <form method="post">
+    {% csrf_token %}
+    <div class="card shadow-lg rounded-3">
+      <div class="card-body p-4">
+        <div class="table-responsive">
+          <table class="table checkout-table align-middle text-center mb-0">
+            <thead class="thead-custom">
+              <tr>
+                <th>Item</th>
+                <th>Quantity / Grams</th>
+                <th>Price</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if ingredients_grouped %}
+              <tr>
+                <td><strong>My Snack 1 (All Ingredients)</strong></td>
+                <td>{{ total_ingredient_grams }} g</td>
+                <td>SEK {{ total_ingredient_price }}</td>
+                <td>--</td>
+              </tr>
+              {% endif %}
+            
+              {% for snack in snacks %}
+              <tr>
+                <td>{{ snack.snack.title }}</td>
+                <td>{{ snack.quantity }} pcs</td>
+                <td>SEK {{ snack.get_total_price }}</td>
+                <td>
+                  <a href="{{ snack.get_remove_from_cart_url }}" class="btn-ghost btn-ghost-danger">Delete</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="mb-0 text-uppercase" style="color:#357ABD; font-weight:700; transform: skew(-5deg);">
+          <span style="opacity:0.7;">Grand Total:</span> <span style="color:#357ABD;">SEK {{ total_cost }}</span>
+        </h4>
+
+        <div class="d-flex justify-content-between mt-4 flex-wrap">
+          <div class="mb-2">
+            <a href="{% url 'main:home' %}" class="custom-see-all-btn">Add Ingredients</a>
+            <a href="{% url 'main:snacks-list' %}" class="custom-see-all-btn ms-2">Add Snacks</a>
+          </div>
+          
+          <button type="submit" class="btn-ghost btn-ghost-blue btn-lg">Confirm Order</button>
+        </div>
+      </div>
+    </div>
+  </form>
+  {% else %}
+    <div class="text-center">
+      <h4 class="text-muted">Your cart is empty.</h4>
+      <a href="{% url 'main:home' %}" class="btn-ghost mt-3">Browse Ingredients</a>
+      <a href="{% url 'main:snacks-list' %}" class="btn-ghost btn-ghost-warning mt-3">Browse Snacks</a>
+    </div>
+  {% endif %}
+</div>
+
+<style>
+/* ===== Table Styles ===== */
+.checkout-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  font-family: 'Arial', sans-serif;
+}
+
+.checkout-table thead.thead-custom th {
+  background-color: #357ABD;
+  color: white;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  padding: 0.75rem;
+  border: none;
+}
+
+.checkout-table tbody tr {
+  transition: background 0.3s, transform 0.2s;
+}
+
+.checkout-table tbody tr:nth-child(even) {
+  background-color: #f9fbff;
+}
+
+.checkout-table tbody tr:hover {
+  background-color: #e6f0ff;
+  transform: scale(1.01);
+}
+
+.checkout-table td {
+  padding: 0.8rem;
+  vertical-align: middle;
+  border-top: 1px solid #dee2e6;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+/* ===== Ghost Buttons (reuse your styles) ===== */
+.btn-ghost {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  padding: 0.6rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  color: #357ABD; /* Default Blue text */
+  border: 2px solid #357ABD;
+  background: transparent;
+  transition: transform 0.3s, background 0.3s, color 0.3s, box-shadow 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+}
+
+.btn-ghost:hover {
+  transform: scale(1.05);
+  background: #357ABD;
+  color: white;
+  box-shadow: 0 8px 20px rgba(53, 122, 189, 0.5);
+}
+
+.btn-ghost-blue {
+  color: #357ABD;
+  border-color: #357ABD;
+}
+
+.btn-ghost-blue:hover {
+  background: #357ABD;
+  color: white;
+  box-shadow: 0 8px 20px rgba(53, 122, 189, 0.5);
+}
+
+.btn-ghost-warning {
+  color: #FFA500;
+  border-color: #FFA500;
+}
+
+.btn-ghost-warning:hover {
+  background: #FFA500;
+  color: white;
+  box-shadow: 0 8px 20px rgba(255, 165, 0, 0.5);
+}
+
+.btn-ghost-danger {
+  color: #E74C3C;
+  border-color: #E74C3C;
+}
+
+.btn-ghost-danger:hover {
+  background: #E74C3C;
+  color: white;
+  box-shadow: 0 8px 20px rgba(231, 76, 60, 0.5);
+}
+
+/* add snacks buttons */
+.custom-see-all-btn {
+    display: inline-block;
+    padding: 0.6rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 900;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-decoration: none;
+    color: #357ABD; /* Scandinavian blue */
+    background-color: #FFD500; /* Scandinavian yellow */
+    transform: skew(-10deg);
+    font-family: 'Arial Black', 'Impact', sans-serif;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.custom-see-all-btn:hover {
+    transform: skew(-10deg) scale(1.05);
+    background-color: #357ABD; /* Blue hover */
+    color: #FFD500; /* Yellow text on hover */
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.custom-see-all-btn {
+    padding: 0.5rem 1.2rem;
+    font-size: 1rem;
+}
+
+</style>
+{% endblock %}

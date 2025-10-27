@@ -1,34 +1,42 @@
 from django.contrib import admin
-from .models import Item, CartItems, Reviews
-from django.db import models
+from .models import Ingredient, Snack, CartItems, Order
 
-class ItemAdmin(admin.ModelAdmin):
-    fieldsets = [
-        ("Created By", {'fields': ["created_by"]}),
-        ("Title", {'fields': ["title"]}),
-        ("Image", {'fields': ["image"]}),
-        ("Description", {'fields': ["description"]}),
-        ("Price", {'fields': ["price"]}),
-        ("Pieces", {'fields': ["pieces"]}),
-        ("Instructions", {'fields': ["instructions"]}),
-        ("Labels", {'fields': ["labels"]}),
-        ("Label Colour", {'fields': ["label_colour"]}),
-        ("Slug", {'fields': ["slug"]}),
+@admin.register(Ingredient)
+class IngredientAdmin(admin.ModelAdmin):
+    list_display = ['title', 'price_per_100g', 'created_by']
+
+@admin.register(Snack)
+class SnackAdmin(admin.ModelAdmin):
+    list_display = ["title", "price", "created_by", "created_at"]
+
+class CartItemsInline(admin.TabularInline):
+    model = CartItems
+    extra = 0
+    readonly_fields = ['ingredient', 'snack', 'grams', 'quantity', 'get_total_price']
+
+    def get_total_price(self, obj):
+        return obj.get_total_price()
+    get_total_price.short_description = "Price (SEK)"
+
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = [
+        'reference_code',
+        'user',
+        'get_email',
+        'status',
+        'ordered_date',
+        'get_total_cost'
     ]
-    list_display = ('id','created_by','title','description','price','labels')
+    list_filter = ['status', 'ordered_date']
+    inlines = [CartItemsInline]
 
-class CartItemsAdmin(admin.ModelAdmin):
-    fieldsets = [
-        ("Order Status", {'fields' : ["status"]}),
-        ("Delivery Date", {'fields' : ["delivery_date"]})
+    def get_total_cost(self, obj):
+        return obj.get_total_cost()
+    get_total_cost.short_description = "Total Cost (SEK)"
 
-    ]
-    list_display = ('id','user','item','quantity','ordered','ordered_date','delivery_date','status')
-    list_filter = ('ordered','ordered_date','status')
-
-class ReviewsAdmin(admin.ModelAdmin):
-    list_display = ('user','item','review','posted_on')
-
-admin.site.register(Item,ItemAdmin)
-admin.site.register(CartItems,CartItemsAdmin)
-admin.site.register(Reviews,ReviewsAdmin)
+    def get_email(self, obj):
+        return obj.user.email
+    get_email.short_description = "Email"

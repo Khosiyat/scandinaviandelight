@@ -5,13 +5,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="{% static 'main/styles.css' %}">
-    <title>E-Food</title>
+    <title>Scandinavian Delight</title>
+
+    <style>
+        /* Navbar link style (smaller but still bold and skewed) */
+        .navbar-text-style {
+            color: #357ABD !important; /* Consistent table/nav blue */
+            text-transform: uppercase;
+            font-weight: 800;
+            font-size: 1rem;
+            transform: skew(-8deg);
+            display: inline-block;
+            font-family: 'Arial Black', 'Impact', sans-serif;
+            text-decoration: none !important;
+            transition: 0.2s ease;
+            margin-right: 0.8rem;
+        }
+
+        .navbar-text-style:hover {
+            color: #1a4d80 !important; /* Slightly darker hover for contrast */
+            transform: skew(-8deg) scale(1.05);
+        }
+
+        /* Logout button style */
+        .logout-button {
+            background: #357ABD; /* Consistent blue */
+            border: none;
+            color: white;
+            text-transform: uppercase;
+            font-weight: 800;
+            font-size: 1rem;
+            transform: skew(-8deg);
+            font-family: 'Arial Black', 'Impact', sans-serif;
+            cursor: pointer;
+            border-radius: 6px;
+            padding: 4px 10px;
+            transition: 0.2s ease;
+        }
+
+        .logout-button:hover {
+            background: #1a4d80;
+            transform: skew(-8deg) scale(1.05);
+        }
+
+        /* Navbar background */
+        .navbar {
+            background-color: white !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* Skewed yellow box for brand (default: yellow bg, blue text) */
+        .brand-box {
+            background-color: #FFD700; /* yellow */
+            transform: skew(-10deg);
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: all 0.25s ease;
+        }
+
+        .brand-box h3 {
+            color: #357ABD; /* blue text */
+            text-transform: uppercase;
+            font-weight: 900;
+            font-size: 2rem;
+            transform: skew(-10deg); /* same skew as box */
+            display: inline-block;
+            font-family: 'Arial Black', 'Impact', sans-serif;
+            margin: 0;
+            transition: all 0.25s ease;
+        }
+
+        /* Hover effect: blue background, yellow text */
+        .brand-box:hover {
+            background-color: #357ABD; /* table/nav blue */
+            transform: skew(-10deg) scale(1.05);
+            box-shadow: 0 8px 20px rgba(53, 122, 189, 0.5);
+        }
+
+        .brand-box:hover h3 {
+            color: #FFD700; /* yellow text */
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="/"><h3>The XYZ</h3></a>
+    <nav class="navbar navbar-expand-lg">
+        <a class="navbar-brand" href="{% url 'main:snacks-list' %}">
+            <div class="brand-box">
+                <h3>Scandinavian Delight</h3>
+            </div>
+        </a>
+          
         <button
             class="navbar-toggler"
             type="button"
@@ -23,37 +110,38 @@
         >
             <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mr-auto">
-            </ul>
-            <ul class="navbar-nav ml-auto">
-                    <li><a href="{% url 'main:home' %}" class="mr-2 text-light">Home</a></li>
+            <ul class="navbar-nav ml-auto align-items-center">
+                <li><a href="{% url 'main:home' %}" class="navbar-text-style">Home</a></li>
+
                 {% if user.is_authenticated %}
                     {% if request.user|has_group:"admin_owner" %} 
-                        <li><a href="{% url 'main:admin_dashboard' %}" class="mr-2 text-light">DashBoard</a></li>
+                        <li><a href="{% url 'main:admin_dashboard' %}" class="navbar-text-style">Dashboard</a></li>
                         <li>
-                            <form class="logout-link" action="{% url 'accounts:logout' %}" method="post">
+                            <form class="logout-link d-inline" action="{% url 'accounts:logout' %}" method="post">
                                 {% csrf_token %}
-                                <button type="submit" class="mr-2">Logout</button>
+                                <button type="submit" class="logout-button">Logout</button>
                             </form>
                         </li> 
                     {% else %}
-                        <li><a href="{% url 'main:cart' %}" class="mr-2 text-light">My Cart🛒</a></li>
-                        <li><a href="{% url 'main:order_details' %}" class="mr-2 text-light">Your Orders</a></li>
+                        <li><a href="{% url 'main:cart' %}" class="navbar-text-style">Cart</a></li>
+                        <li><a href="{% url 'main:order_details' %}" class="navbar-text-style">Orders</a></li>
                         <li>
-                            <form class="logout-link" action="{% url 'accounts:logout' %}" method="post">
+                            <form class="logout-link d-inline" action="{% url 'accounts:logout' %}" method="post">
                                 {% csrf_token %}
-                                <button type="submit" class="mr-2">Logout</button>
+                                <button type="submit" class="logout-button">Logout</button>
                             </form>
                         </li>
                     {% endif %}
                 {% else %}
-                    <li><a href="{% url 'accounts:login' %}" class="mr-2 text-light">Login</a></li>
-                    <li><a href="{% url 'accounts:signup' %}" class="mr-2 text-light">SignUp</a></li>
+                    <li><a href="{% url 'accounts:login' %}" class="navbar-text-style">Login</a></li>
+                    <li><a href="{% url 'accounts:signup' %}" class="navbar-text-style">Signup</a></li>
                 {% endif %}
             </ul>
         </div>
     </nav>
+
     <main role="main">
         {% if messages %}
           {% for message in messages %}
@@ -64,9 +152,9 @@
         {% endif %}
         {% block content %}{% endblock %}
     </main>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <script>
-        $('.carousel').carousel();
-    </script>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
+</body>
+</html>

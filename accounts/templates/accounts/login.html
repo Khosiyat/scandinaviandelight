@@ -1,20 +1,113 @@
 {% extends "main/layout.html" %}
-{% load crispy_forms_tags %} 
+{% load crispy_forms_tags %}
 {% block content %}
-<div class="container">
-    <h1>Login</h1>
-    <div class="form-border">
+<style>
+    /* Center the box vertically and horizontally */
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f8f9fa;
+    }
+
+    /* Form box styling */
+    .login-box {
+        background: #fff;
+        padding: 2rem 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .login-box h1 {
+        text-align: center;
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        color: #333;
+    }
+
+    .form-control {
+        display: block;
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+
+    /* ===== Custom button styling (from your cart template) ===== */
+    .custom-see-all-btn {
+        display: inline-block;
+        width: 100%;
+        padding: 0.6rem 1.2rem;
+        border-radius: 12px;
+        font-weight: 900;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-decoration: none;
+        color: #357ABD; /* Blue text */
+        background-color: #FFD500; /* Yellow background */
+        transform: skew(-10deg);
+        font-family: 'Arial Black', 'Impact', sans-serif;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        border: none;
+        cursor: pointer;
+    }
+
+    .custom-see-all-btn:hover {
+        transform: skew(-10deg) scale(1.05);
+        background-color: #357ABD; /* Blue hover */
+        color: #FFD500; /* Yellow text on hover */
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    .login-box p {
+        margin-top: 1rem;
+        text-align: center;
+        font-size: 0.9rem;
+        color: #555;
+    }
+
+    .login-box a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .login-box a:hover {
+        text-decoration: underline;
+    }
+
+    /* Hide default labels */
+    label {
+        display: none;
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-box">
+        <h1 class="text-center mb-4 text-uppercase" style="color:#357ABD; font-weight:900; letter-spacing:1px; transform: skew(-10deg);">Login</h1>
         <form class="site-form" action="{% url 'accounts:login' %}" method="post">
-            <div class="logging-form">
-                {% csrf_token %}
-                {{ form|crispy }}
-                {% if request.GET.next %}
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {% for field in form %}
+                <div class="form-group">
+                    {{ field }}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+            {% if request.GET.next %}
                 <input type="hidden" name="next" value="{{ request.GET.next }}">
-                {% endif %}
-                <input type="submit" value="Login" class="btn" />
-            </div>
+            {% endif %}
+
+            <!-- Login button with cart-style class -->
+            <button type="submit" class="custom-see-all-btn">Login</button>
         </form>
+        <p>Not got an account? <a href="{% url 'accounts:signup' %}"><u>Sign Up</u></a></p>
     </div>
-    <p>Not got an account? <a href="{% url 'accounts:signup' %}"><u>Sign Up</u></a></p>
 </div>
 {% endblock %}

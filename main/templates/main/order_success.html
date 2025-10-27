@@ -1,0 +1,8 @@
+{% extends "main/layout.html" %}
+{% block content %}
+<div class="container text-center my-5">
+  <h1>✅ Order Placed Successfully!</h1>
+  <p>Thank you for ordering. Your items will be delivered soon.</p>
+  <a href="{% url 'main:home' %}" class="btn btn-primary">Back to Home</a>
+</div>
+{% endblock content %}

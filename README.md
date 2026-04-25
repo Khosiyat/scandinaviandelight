@@ -281,6 +281,10 @@ This is not just CRUD.
 It demonstrates:
 
 * Real-world e-commerce logic
+
+
+<img width="1597" height="820" alt="unrefined coconut oil" src="https://github.com/user-attachments/assets/313680a2-f7c4-4574-9fee-21d49ce4e41f" />
+
 * Scalable Django architecture
 * Clean separation of concerns
 * Advanced modeling (custom product builder)
